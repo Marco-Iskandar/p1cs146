@@ -1,14 +1,38 @@
 from p1_support import load_level, show_level, save_level_costs
 from math import inf, sqrt
 from heapq import heappop, heappush
-
+import queue
 
 def dijkstras_shortest_path(initial_position, destination, graph, adj):
-    queue=[]
+    frontier = queue.PriorityQueue()
+    frontier.put(initial_position, 0)
+    visited = []
+    came_from = {}
+    cost_so_far = {}
+    came_from[initial_position] = None
+    cost_so_far[initial_position] = 0
+    while not frontier.empty():
+        current = frontier.get()
+        if current == destination:
+            break
+       
+        for currnode in adj(graph,current):
+            if currnode in visited: continue
+            new_cost = cost_so_far[current] + currnode[1]
+            if currnode not in cost_so_far or new_cost < cost_so_far[currnode]:
+                cost_so_far[currnode[0]] = new_cost
+                priority = new_cost
+                if currnode[0] not in visited:
+                    frontier.put(currnode[0], priority)
+                    visited.append(currnode)
+                came_from[currnode[0]] = current
+                
+     
+    """queue=[]
     heappush(queue, initial_position)
     while queue:
         adj(graph,queue[0])
-        heappop(queue)
+        heappop(queue)"""
     """ Searches for a minimal cost path through a graph using Dijkstra's algorithm.
 
     Args:
@@ -22,10 +46,34 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
         Otherwise, return None.
 
     """
+    print(came_from.__class__)
+    return came_from
     pass
 
 
-def dijkstras_shortest_path_to_all(initial_position, graph, adj):
+def dijkstras_shortest_path_to_all(initial_position, graph, adj):   
+    
+    frontier = queue.PriorityQueue()
+    frontier.put(initial_position, 0)
+    visited = []
+    came_from = {}
+    cost_so_far = {}
+    came_from[initial_position] = None
+    cost_so_far[initial_position] = 0
+    while not frontier.empty():
+        current = frontier.get()
+       
+        for currnode in adj(graph,current):
+            if currnode in visited: continue
+            new_cost = cost_so_far[current] + currnode[1]
+            print (new_cost)
+            if currnode not in cost_so_far or new_cost < cost_so_far[currnode]:
+                cost_so_far[currnode[0]] = new_cost
+                priority = new_cost
+                if currnode[0] not in visited:
+                    frontier.put(currnode[0], priority)
+                    visited.append(currnode)
+                came_from[currnode[0]] = graph['spaces'][current]
     """ Calculates the minimum cost to every reachable cell in a graph from the initial_position.
 
     Args:
@@ -36,55 +84,27 @@ def dijkstras_shortest_path_to_all(initial_position, graph, adj):
     Returns:
         A dictionary, mapping destination cells to the cost of a path from the initial_position.
     """
+    return cost_so_far
     pass
 
 
 def navigation_edges(level, cell):
-    #A cell is a 'tuple' that is used to store an x/y coordinate
-    print("cell: %s" % (cell,))
-    result = set()
-    
-    if (cell[0],cell[1]-1) in level['spaces']:
-        upcost=level['spaces'][(cell[0],cell[1]-1)]
-        result.add(((cell[0],cell[1]-1),upcost))
-    else: print ("the space above doesn't exist")
-    
-    if (cell[0],cell[1]+1) in level['spaces']:
-        downcost=level['spaces'][(cell[0],cell[1]+1)]
-        result.add(((cell[0],cell[1]-1),downcost))
-    else: print ("the space below doesn't exist")
-    
-    if (cell[0]-1,cell[1]) in level['spaces']:
-        leftcost=level['spaces'][(cell[0]-1,cell[1])]
-        result.add(((cell[0]-1,cell[1]),leftcost))
-    else: print ("the space above doesn't exist")
-    
-    if (cell[0]+1,cell[1]) in level['spaces']:
-        rightcost=level['spaces'][(cell[0]+1,cell[1])]
-        result.add(((cell[0]+1,cell[1]),rightcost))
-    else: print ("the space below doesn't exist")
-    
-    if (cell[0]-1,cell[1]-1) in level['spaces']:
-        adjupleftcost=level['spaces'][(cell[0]-1,cell[1]-1)]
-        result.add(((cell[0]-1,cell[1]-1),adjupleftcost))
-    else: print ("the space above doesn't exist")
-    
-    if (cell[0]+1,cell[1]-1) in level['spaces']:
-        adjuprightcost=level['spaces'][(cell[0]+1,cell[1]-1)]
-        result.add(((cell[0]+1,cell[1]-1),adjuprightcost))
-    else: print ("the space below doesn't exist")
-    
-    if (cell[0]-1,cell[1]+1) in level['spaces']:
-        adjdownleftcost=level['spaces'][(cell[0]-1,cell[1]+1)]
-        result.add(((cell[0]-1,cell[1]+1),adjdownleftcost))
-    else: print ("the space below doesn't exist")
-    
-    if (cell[0]+1,cell[1]+1) in level['spaces']:
-        adjdownrightcost=level['spaces'][(cell[0]+1,cell[1]+1)]
-        result.add(((cell[0]+1,cell[1]+1),adjdownrightcost))
-    else: print ("the space below doesn't exist")
-    
-    print("the cell below the target: %s" %(downcost,)) #prints cost of the specific node
+    # A cell is a 'tuple' that is used to store an x/y coordinate
+    dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+    diags = [[1, -1], [1, 1], [-1, 1], [-1, -1]]
+    result = []
+    #basic directions
+    for currdir in dirs:
+        neighborpos = (cell[0] + currdir[0], cell[1] + currdir[1])
+        if neighborpos in level['spaces']:
+            neighbor = (neighborpos, (level['spaces'][neighborpos]/2)+(level['spaces'][cell]/2))
+            result.append(neighbor)
+    #diagonals   
+    for currdir in diags:
+        neighborpos = (cell[0] + currdir[0], cell[1] + currdir[1])
+        if neighborpos in level['spaces']:
+            neighbor = (neighborpos, (level['spaces'][neighborpos])*(sqrt(2))/2+(level['spaces'][cell])+(sqrt(2))/2)
+            result.append(neighbor)
     """ Provides a list of adjacent cells and their respective costs from the given cell.
 
     Args:
@@ -155,7 +175,7 @@ def cost_to_all_cells(filename, src_waypoint, output_filename):
 
 
 if __name__ == '__main__':
-    filename, src_waypoint, dst_waypoint = 'example.txt', 'a','e'
+    filename, src_waypoint, dst_waypoint = 'example.txt', 'a', 'e'
     
 
     # Use this function call to find the route between two waypoints.
