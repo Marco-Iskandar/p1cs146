@@ -66,7 +66,8 @@ def dijkstras_shortest_path_to_all(initial_position, graph, adj):
         for currnode in adj(graph,current):
             if currnode in visited: continue
             new_cost = cost_so_far[current] + currnode[1]
-            print (new_cost)
+            print ("%s" % (cost_so_far[current]), "+" "%s" % (currnode[1]),)
+            
             if currnode not in cost_so_far or new_cost < cost_so_far[currnode]:
                 cost_so_far[currnode[0]] = new_cost
                 priority = new_cost
@@ -103,7 +104,7 @@ def navigation_edges(level, cell):
     for currdir in diags:
         neighborpos = (cell[0] + currdir[0], cell[1] + currdir[1])
         if neighborpos in level['spaces']:
-            neighbor = (neighborpos, (level['spaces'][neighborpos])*(sqrt(2))/2+(level['spaces'][cell])+(sqrt(2))/2)
+            neighbor = (neighborpos, (((level['spaces'][neighborpos])*(sqrt(2))/2)+((level['spaces'][cell])*(sqrt(2))/2)))
             result.append(neighbor)
     """ Provides a list of adjacent cells and their respective costs from the given cell.
 
