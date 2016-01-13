@@ -7,6 +7,7 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
     frontier = queue.PriorityQueue()
     frontier.put(initial_position, 0)
     visited = []
+    visited.append(initial_position)
     came_from = {}
     cost_so_far = {}
     came_from[initial_position] = None
@@ -16,35 +17,25 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
         if current == destination:
             break
        
-        for currnode in adj(graph,current):
-            if currnode in visited: continue
-            new_cost = cost_so_far[current] + currnode[1]
-            if currnode not in cost_so_far or new_cost < cost_so_far[currnode]:
-                cost_so_far[currnode[0]] = new_cost
-                priority = new_cost
-                if currnode[0] not in visited:
-                    frontier.put(currnode[0], priority)
-                    visited.append(currnode)
-                came_from[currnode[0]] = current
+        for neighbor in adj(graph,current):
+            if neighbor in visited: continue
+            new_cost = cost_so_far[current] + neighbor[1]
+            if neighbor[0] not in visited or new_cost < cost_so_far[neighbor[0]]:
+                cost_so_far[neighbor[0]] = new_cost
+                frontier.put(neighbor[0], new_cost)
+                visited.append(neighbor[0])
+                came_from[neighbor[0]] = current
                 
      
-    """queue=[]
-    heappush(queue, initial_position)
-    while queue:
-        adj(graph,queue[0])
-        heappop(queue)"""
     """ Searches for a minimal cost path through a graph using Dijkstra's algorithm.
-
     Args:
         initial_position: The initial cell from which the path extends.
         destination: The end location for the path.
         graph: A loaded level, containing walls, spaces, and waypoints.
         adj: An adjacency function returning cells adjacent to a given cell as well as their respective edge costs.
-
     Returns:
         If a path exits, return a list containing all cells from initial_position to destination.
         Otherwise, return None.
-
     """
     print(came_from.__class__)
     return came_from
@@ -52,10 +43,10 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
 
 
 def dijkstras_shortest_path_to_all(initial_position, graph, adj):   
-    
     frontier = queue.PriorityQueue()
     frontier.put(initial_position, 0)
     visited = []
+    visited.append(initial_position)
     came_from = {}
     cost_so_far = {}
     came_from[initial_position] = None
@@ -63,25 +54,21 @@ def dijkstras_shortest_path_to_all(initial_position, graph, adj):
     while not frontier.empty():
         current = frontier.get()
        
-        for currnode in adj(graph,current):
-            if currnode in visited: continue
-            new_cost = cost_so_far[current] + currnode[1]
-            print ("%s" % (cost_so_far[current]), "+" "%s" % (currnode[1]),)
-            
-            if currnode not in cost_so_far or new_cost < cost_so_far[currnode]:
-                cost_so_far[currnode[0]] = new_cost
-                priority = new_cost
-                if currnode[0] not in visited:
-                    frontier.put(currnode[0], priority)
-                    visited.append(currnode)
-                came_from[currnode[0]] = graph['spaces'][current]
+        for neighbor in adj(graph,current):
+            if neighbor in visited: continue
+            new_cost = cost_so_far[current] + neighbor[1]
+            if neighbor[0] not in visited or new_cost < cost_so_far[neighbor[0]]:
+                cost_so_far[neighbor[0]] = new_cost
+                frontier.put(neighbor[0], new_cost)
+                visited.append(neighbor[0])
+                came_from[neighbor[0]] = current
+                
+     
     """ Calculates the minimum cost to every reachable cell in a graph from the initial_position.
-
     Args:
         initial_position: The initial cell from which the path extends.
         graph: A loaded level, containing walls, spaces, and waypoints.
         adj: An adjacency function returning cells adjacent to a given cell as well as their respective edge costs.
-
     Returns:
         A dictionary, mapping destination cells to the cost of a path from the initial_position.
     """
@@ -107,15 +94,12 @@ def navigation_edges(level, cell):
             neighbor = (neighborpos, (((level['spaces'][neighborpos])*(sqrt(2))/2)+((level['spaces'][cell])*(sqrt(2))/2)))
             result.append(neighbor)
     """ Provides a list of adjacent cells and their respective costs from the given cell.
-
     Args:
         level: A loaded level, containing walls, spaces, and waypoints.
         cell: A target location.
-
     Returns:
         A list of tuples containing an adjacent cell's coordinates and the cost of the edge joining it and the
         originating cell.
-
         E.g. from (0,0):
             [((0,1), 1),
              ((1,0), 1),
@@ -128,12 +112,10 @@ def navigation_edges(level, cell):
 
 def test_route(filename, src_waypoint, dst_waypoint):
     """ Loads a level, searches for a path between the given waypoints, and displays the result.
-
     Args:
         filename: The name of the text file containing the level.
         src_waypoint: The character associated with the initial waypoint.
         dst_waypoint: The character associated with the destination waypoint.
-
     """
 
     # Load and display the level.
@@ -155,12 +137,10 @@ def test_route(filename, src_waypoint, dst_waypoint):
 def cost_to_all_cells(filename, src_waypoint, output_filename):
     """ Loads a level, calculates the cost to all reachable cells from 
     src_waypoint, then saves the result in a csv file with name output_filename.
-
     Args:
         filename: The name of the text file containing the level.
         src_waypoint: The character associated with the initial waypoint.
         output_filename: The filename for the output csv file.
-
     """
     
     # Load and display the level.
