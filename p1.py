@@ -37,8 +37,15 @@ def dijkstras_shortest_path(initial_position, destination, graph, adj):
         If a path exits, return a list containing all cells from initial_position to destination.
         Otherwise, return None.
     """
-    print(came_from.__class__)
-    return came_from
+    print(came_from[destination])
+    #now create a list backtracking the path from came_from
+    result_path = []
+    cursor=destination
+    while cursor is not initial_position:
+        result_path.append(cursor)
+        cursor=came_from[cursor]
+    
+    return result_path
     pass
 
 
